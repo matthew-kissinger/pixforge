@@ -1,0 +1,5 @@
+{
+  "name": "Game Asset Generator with Gemini AI",
+  "description": "A browser-based application that combines a drawing/editing canvas with Google's Gemini AI to generate game assets. Users can sketch, upload images, and provide text prompts to generate various asset types.",
+  "requestFramePermissions": []
+}
