@@ -1,7 +1,9 @@
 import React, { useRef, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Tldraw, Editor, exportAs } from 'tldraw';
 import 'tldraw/tldraw.css';
 import { useActivePreset } from '../state/prompts';
+import { ColorPalette } from './ColorPalette';
 
 interface ConstrainedCanvasProps {
   onClear: () => void;
@@ -14,6 +16,7 @@ interface ConstrainedCanvasRef {
 export const ConstrainedCanvas = forwardRef<ConstrainedCanvasRef, ConstrainedCanvasProps>(({ onClear }, ref) => {
   const editorRef = useRef<Editor | null>(null);
   const preset = useActivePreset();
+  const navigate = useNavigate();
   const [zoom, setZoom] = useState<number | null>(null); // Will be calculated after mount
   const [showGrid, setShowGrid] = useState(true);
   const [hasContent, setHasContent] = useState(false);
@@ -191,7 +194,7 @@ export const ConstrainedCanvas = forwardRef<ConstrainedCanvasRef, ConstrainedCan
           <div className="flex items-center gap-2">
             <label className="text-sm">Zoom:</label>
             <select 
-              value={zoom} 
+              value={zoom || ''} 
               onChange={(e) => handleZoomChange(Number(e.target.value))}
               className="px-2 py-1 border rounded text-sm"
             >
@@ -250,34 +253,61 @@ export const ConstrainedCanvas = forwardRef<ConstrainedCanvasRef, ConstrainedCan
           >
             Export Canvas
           </button>
+          <button
+            onClick={async () => {
+              const blob = await handleExport();
+              if (blob) {
+                // Import the scenes store and add canvas to available frames
+                const { useScenesStore } = await import('../state/scenes');
+                const { refreshAvailableFrames } = useScenesStore.getState();
+                const { useArtifactsStore } = await import('../state/artifacts');
+                const { artifacts } = useArtifactsStore.getState();
+                refreshAvailableFrames(blob, artifacts);
+                
+                // Navigate to scenes page
+                navigate('/scenes');
+              }
+            }}
+            className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+          >
+            Use in Scene
+          </button>
         </div>
       </div>
 
       {/* Canvas Container */}
-      <div className="flex-1 flex items-center justify-center p-4 overflow-hidden">
-        <div 
-          className="border-2 border-gray-300 shadow-lg"
-          style={{
-            width: `min(${displayWidth}px, 100%)`,
-            height: `min(${displayHeight}px, calc(100vh - 200px))`,
-            maxWidth: '100%',
-            maxHeight: '100%',
-            imageRendering: 'pixelated'
-          }}
-        >
-          <Tldraw
-            onMount={handleMount}
-            options={{
-              maxPages: 1,
+      <div className="flex-1 flex gap-4 p-4 overflow-hidden">
+        {/* Color Palette */}
+        <div className="flex-shrink-0">
+          <ColorPalette editor={editorRef.current} />
+        </div>
+
+        {/* Canvas */}
+        <div className="flex-1 flex items-center justify-center">
+          <div 
+            className="border-2 border-gray-300 shadow-lg"
+            style={{
+              width: `min(${displayWidth}px, 100%)`,
+              height: `min(${displayHeight}px, calc(100vh - 200px))`,
+              maxWidth: '100%',
+              maxHeight: '100%',
+              imageRendering: 'pixelated'
             }}
-            components={{
-              // Keep essential tools visible, hide only navigation menus
-              ActionsMenu: null,
-              HelpMenu: null,
-              MainMenu: null,
-              // Keep drawing tools, zoom controls, etc.
-            }}
-          />
+          >
+            <Tldraw
+              onMount={handleMount}
+              options={{
+                maxPages: 1,
+              }}
+              components={{
+                // Keep essential tools visible, hide only navigation menus
+                ActionsMenu: null,
+                HelpMenu: null,
+                MainMenu: null,
+                // Keep drawing tools, zoom controls, etc.
+              }}
+            />
+          </div>
         </div>
       </div>
 

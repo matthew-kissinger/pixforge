@@ -42,6 +42,16 @@ export const Header: React.FC = () => {
           >
             Editor
           </Link>
+          <Link 
+            to="/scenes" 
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              location.pathname === '/scenes'
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            Scenes
+          </Link>
         </nav>
       </div>
     </header>

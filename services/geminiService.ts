@@ -1,15 +1,26 @@
 
-import { GoogleGenAI, Modality } from "@google/genai";
 import { GenerationRequest, GenerationResult } from '../types';
 import { renderPrompt, renderStrictSuffix } from '../utils/prompt';
 import { validateAlphaAndSize, blobToBase64 } from '../utils/image';
 import { usePromptsStore } from '../state/prompts';
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set");
+// Secure API client that uses backend endpoint
+async function callSecureAPI(payload: any) {
+  const response = await fetch('/api/generate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'API request failed');
+  }
+  
+  return response.json();
 }
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 async function callGeminiWithImage(
   inputBlob: Blob,
@@ -20,7 +31,7 @@ async function callGeminiWithImage(
   const imageMimeType = base64Data.split(';')[0].split(':')[1];
   const imageBase64 = base64Data.split(',')[1];
 
-  const response = await ai.models.generateContent({
+  const response = await callSecureAPI({
     model: 'gemini-2.5-flash-image-preview',
     contents: {
       parts: [
@@ -36,7 +47,7 @@ async function callGeminiWithImage(
       ],
     },
     config: {
-      responseModalities: [Modality.IMAGE, Modality.TEXT],
+      responseModalities: ['IMAGE', 'TEXT'],
       temperature: temperature || 0.7,
     },
   });
@@ -214,13 +225,13 @@ Process the provided images and create a single edited result that fulfills this
   });
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await callSecureAPI({
       model: 'gemini-2.5-flash-image-preview',
       contents: {
         parts: contentParts
       },
       config: {
-        responseModalities: [Modality.IMAGE, Modality.TEXT],
+        responseModalities: ['IMAGE', 'TEXT'],
         temperature: 0.7,
       },
     });
@@ -277,7 +288,7 @@ export const generateAsset = async (
   const imageMimeType = canvasImage.split(';')[0].split(':')[1];
   const imageBase64 = canvasImage.split(',')[1];
   
-  const response = await ai.models.generateContent({
+  const response = await callSecureAPI({
     model: 'gemini-2.5-flash-image-preview',
     contents: {
       parts: [
@@ -293,7 +304,7 @@ export const generateAsset = async (
       ],
     },
     config: {
-        responseModalities: [Modality.IMAGE, Modality.TEXT],
+        responseModalities: ['IMAGE', 'TEXT'],
     },
   });
 

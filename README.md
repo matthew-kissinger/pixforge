@@ -44,47 +44,13 @@ cp .env.example .env
 # GEMINI_API_KEY=your_actual_api_key_here
 ```
 
-### 3. Start the Development Servers
-
-The app requires **both** frontend and backend servers running:
+### 3. Start the Development Server
 
 ```bash
-# Terminal 1: Start the backend (Express server on port 8080)
-npm start
-
-# Terminal 2: Start the frontend (Vite dev server on port 5173)
 npm run dev
 ```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
-
-## Deploy to Google Cloud Run
-
-### Prerequisites
-- [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) installed
-- A Google Cloud project with billing enabled
-- Gemini API key stored in Google Secret Manager
-
-### One-Time Setup: Store API Key Securely
-
-```bash
-# Run the setup script to store your API key in Secret Manager
-setup-secrets.bat  # Windows
-# or manually:
-echo "your_api_key_here" | gcloud secrets create gemini-api-key --data-file=-
-```
-
-### Deploy
-
-```bash
-# Option 1: Use the deploy script
-deploy.bat  # Windows
-
-# Option 2: Manual deployment with Cloud Build
-gcloud builds submit --config=cloudbuild.yaml
-```
-
-Your app will be deployed to Cloud Run with the API key securely managed via Secret Manager.
 
 ## Project Structure
 
@@ -101,27 +67,17 @@ pixforge/
 │   ├── AssetEditorPage.tsx
 │   └── ScenesPage.tsx
 ├── services/           # API services
-│   ├── geminiService.ts
-│   └── veoService.ts
+│   └── geminiService.ts
 ├── state/              # Zustand stores
 │   ├── prompts.ts
 │   └── scenes.ts
 ├── utils/              # Utility functions
-├── server.js           # Express backend server
 └── App.tsx             # Main app component
 ```
-
-## Security Notes
-
-- ✅ API keys are **never** committed to git
-- ✅ Production deployment uses Google Secret Manager
-- ✅ `.env` files are in `.gitignore`
-- ✅ Backend proxies API calls to keep keys secure
 
 ## Scripts
 
 - `npm run dev` - Start Vite development server
-- `npm start` - Start Express backend server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 
@@ -132,9 +88,7 @@ pixforge/
 - **State:** Zustand
 - **Routing:** React Router
 - **UI:** Radix UI components
-- **Backend:** Express.js
 - **AI:** Google Gemini 2.5 Flash with image generation
-- **Deployment:** Docker + Google Cloud Run
 
 ## Contributing
 

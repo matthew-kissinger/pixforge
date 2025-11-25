@@ -5,6 +5,7 @@ import { Header } from './components/Header';
 import CanvasPage from './pages/CanvasPage';
 import PromptsPage from './pages/PromptsPage';
 import AssetEditorPage from './pages/AssetEditorPage';
+import ScenesPage from './pages/ScenesPage';
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
             <Route path="/canvas" element={<CanvasPage />} />
             <Route path="/prompts" element={<PromptsPage />} />
             <Route path="/editor" element={<AssetEditorPage />} />
+            <Route path="/scenes" element={<ScenesPage />} />
             <Route path="/" element={<Navigate to="/canvas" replace />} />
           </Routes>
         </main>
